@@ -82,7 +82,7 @@ export function byId(reportId: string): SavedReport {
 export function reports() {
   return db
     .prepare(
-      "SELECT id,date,session,market,version,created_at FROM reports ORDER BY date DESC,version DESC",
+      "SELECT id,date,session,market,version,created_at FROM reports WHERE COALESCE(json_extract(payload,'$.demo'),0)=0 ORDER BY date DESC,version DESC",
     )
     .all();
 }

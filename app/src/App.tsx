@@ -117,7 +117,7 @@ export function App() {
     setToken(b.token);
     setBoot(b);
     setDate(
-      (d) => d || b.reports[0]?.date || new Date().toISOString().slice(0, 10),
+      (d) => d || b.reports[0]?.date || new Date().toLocaleDateString("en-CA"),
     );
   }, []);
   useEffect(() => {
@@ -369,9 +369,6 @@ export function App() {
                 <option value="US">美股市场</option>
               </select>
               <div className="toolbar-end">
-                {report?.demo && (
-                  <span className="badge warm">演示数据 · 非实时</span>
-                )}
                 {report && (
                   <span className="muted cutoff">
                     <Clock size={14} />
@@ -398,27 +395,7 @@ export function App() {
             {loading ? (
               <Empty title="正在读取本地报告…" />
             ) : !report ? (
-              <Empty
-                title="这一天还没有报告"
-                detail="在 WorkBuddy 执行采集任务，通过 MCP 写入后即可查看。"
-              >
-                {!boot?.reports.length && (
-                  <button
-                    className="primary"
-                    onClick={() =>
-                      run(async () => {
-                        await api("/demo", {});
-                        await refresh();
-                      }, "演示数据已加载")
-                    }
-                  >
-                    加载演示数据，体验工作台
-                  </button>
-                )}
-                <button onClick={() => setPage("settings")}>
-                  查看接入方式 <ArrowRight />
-                </button>
-              </Empty>
+              <Empty title="待更新" />
             ) : session === "morning" ? (
               <>
                 <div className="sector-strip">

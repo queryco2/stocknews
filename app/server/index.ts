@@ -7,7 +7,6 @@ import { z } from "zod";
 import * as store from "./store.ts";
 import * as knowledge from "./knowledge.ts";
 import { check, runSync, type Platform } from "./connectors.ts";
-import { seed } from "./seed.ts";
 const app = express();
 app.disable("x-powered-by");
 app.use(express.json({ limit: "8mb" }));
@@ -53,19 +52,16 @@ app.get(
 );
 app.get(
   "/api/report",
-  route((req) =>
-    req.query.id
+  route((req) => {
+    const report = req.query.id
       ? store.byId(String(req.query.id))
       : store.latest(
           String(req.query.date),
           String(req.query.session),
           String(req.query.market || "CN_A"),
-        ),
-  ),
-);
-app.post(
-  "/api/demo",
-  route(() => seed()),
+        );
+    return report?.demo ? null : report;
+  }),
 );
 app.post(
   "/api/news/action",
