@@ -23,3 +23,5 @@ Do not display example/demo reports or provide a demo-loading button. Without re
 News runs every calendar day, including weekends and holidays; label the tab 每日资讯. Only close-market reports depend on actual trading days. 待更新 means no ingested report, never no news because of a holiday. Keep the morning protocol value for compatibility.
 
 Clarification of 待更新: preserve the sector tabs, news list slots and detail pane when data is absent; display 待更新 inside those areas. Default sector names are navigation categories only, without fabricated rankings, articles or sources. Replace with actual AI-ranked sectors once a real report arrives. Close reports retain table sections with pending cells.
+
+Stock-specific news is a subview of 资讯中心, accessed via 个股资讯. Accept stock name/code and market, retain query history with sources, and preserve the clean master-detail layout. No sample stock data. WorkBuddy task links prefill only; do not claim automatic execution.

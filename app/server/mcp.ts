@@ -1,3 +1,4 @@
+import * as stockNews from "./stock-news.ts";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
@@ -40,8 +41,10 @@ tool(
   {},
   () => ({
     calendar_policy: {
-      morning: "每日资讯，按自然日归档，包括周末及节假日；检索截至采集时刻的近24小时。morning为兼容既有接口保留的名称，不表示仅交易日可用。",
-      close: "仅实际交易日的收盘行情；先核实市场交易日，不得将上一交易日数据标记为休市当天数据。",
+      morning:
+        "每日资讯，按自然日归档，包括周末及节假日；检索截至采集时刻的近24小时。morning为兼容既有接口保留的名称，不表示仅交易日可用。",
+      close:
+        "仅实际交易日的收盘行情；先核实市场交易日，不得将上一交易日数据标记为休市当天数据。",
     },
     report: z.toJSONSchema(Report),
     news: z.toJSONSchema(News),
@@ -117,5 +120,28 @@ tool(
     items: z.array(News).max(10),
   },
   (a) => store.submitSupplement(a.request_id, a.batch_id, a.items),
+);
+tool(
+  "get_stock_news_request",
+  "读取个股查询、目标市场与近24小时时间范围；核实股票身份，歧义时报告失败，不猜测。",
+  { request_id: z.string() },
+  (a) => stockNews.stockRequest(a.request_id),
+);
+tool(
+  "submit_stock_news",
+  "个股资讯直接留存。stock需包含name、symbol、exchange、market。交易所用SSE/SZSE/BSE/HKEX/NASDAQ/NYSE/AMEX；资讯related_stocks含同一symbol与exchange。",
+  {
+    request_id: z.string(),
+    batch_id: z.string().min(1),
+    stock: stockNews.StockIdentity,
+    items: z.array(News).max(10),
+  },
+  (a) => stockNews.submitStockNews(a.request_id, a.batch_id, a.stock, a.items),
+);
+tool(
+  "fail_stock_news_request",
+  "记录个股查询失败或股票身份歧义的具体原因。",
+  { request_id: z.string(), error: z.string().min(1).max(1000) },
+  (a) => stockNews.failStockRequest(a.request_id, a.error),
 );
 await server.connect(new StdioServerTransport());

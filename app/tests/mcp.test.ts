@@ -20,7 +20,13 @@ test("real stdio MCP handshake, schemas, publication and query", async () => {
   try {
     await client.connect(transport);
     const listed = await client.listTools();
-    assert.equal(listed.tools.length, 9);
+    assert.equal(listed.tools.length, 12);
+    for (const name of [
+      "get_stock_news_request",
+      "submit_stock_news",
+      "fail_stock_news_request",
+    ])
+      assert.ok(listed.tools.some((t) => t.name === name));
     const schema = await client.callTool({
       name: "get_ingestion_schema",
       arguments: {},
@@ -69,6 +75,49 @@ test("real stdio MCP handshake, schemas, publication and query", async () => {
       }),
     );
     assert.equal(context.report.version, 1);
+    process.env.STOCKNEWS_DATA_DIR = dir;
+    const stockApi = await import("../server/stock-news.ts");
+    const localStore = await import("../server/store.ts");
+    try {
+      const request = stockApi.createStockRequest("000001", "CN_A");
+      const read = decode(
+        await client.callTool({
+          name: "get_stock_news_request",
+          arguments: { request_id: request.request_id },
+        }),
+      );
+      assert.equal(read.query, "000001");
+      const stock = {
+        name: "测试股票",
+        symbol: "000001",
+        exchange: "SZSE",
+        market: "CN_A",
+      };
+      const written = await client.callTool({
+        name: "submit_stock_news",
+        arguments: {
+          request_id: request.request_id,
+          batch_id: "stock-integration",
+          stock,
+          items: [
+            {
+              title: "测试资讯",
+              summary: "测试概要",
+              published_at: read.window_end,
+              fetched_at: read.window_end,
+              sources: [{ name: "测试源", url: "https://example.com/stock" }],
+              verification: "full_text_read",
+              related_stocks: [stock],
+            },
+          ],
+        },
+      });
+      assert.ok(!written.isError, JSON.stringify(written));
+      assert.equal(stockApi.stockRequests()[0].items.length, 1);
+      assert.equal(stockApi.stockRequests()[0].status, "completed");
+    } finally {
+      localStore.db.close();
+    }
   } finally {
     await client.close();
     rmSync(dir, { recursive: true, force: true });

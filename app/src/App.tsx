@@ -1,3 +1,4 @@
+import { StockNews } from "./StockNews";
 import { useEffect, useState, useCallback } from "react";
 import {
   ChartBar,
@@ -243,7 +244,10 @@ export function App() {
     }
   };
   const today = new Date().toLocaleDateString("en-CA");
-  const reportDayLabel = !date || date === today ? "今日" : `${date.slice(5, 7)}月${date.slice(8, 10)}日`;
+  const reportDayLabel =
+    !date || date === today
+      ? "今日"
+      : `${date.slice(5, 7)}月${date.slice(8, 10)}日`;
   const newsHeading = `${reportDayLabel}${session === "morning" ? "热点资讯" : "收盘复盘"}`;
   const versions =
     boot?.reports.filter(
@@ -267,7 +271,7 @@ export function App() {
         </div>
         <nav>
           <button
-            className={page === "news" ? "active" : ""}
+            className={page === "news" || page === "stocks" ? "active" : ""}
             onClick={() => setPage("news")}
           >
             <Newspaper size={21} />
@@ -297,13 +301,23 @@ export function App() {
             <h1>
               {page === "news"
                 ? newsHeading
-                : page === "knowledge"
-                  ? "知识库"
-                  : "设置与连接"}
+                : page === "stocks"
+                  ? "个股资讯"
+                  : page === "knowledge"
+                    ? "知识库"
+                    : "设置与连接"}
             </h1>
           </div>
           <div className="header-actions">
-            {page === "news" && <></>}
+            {page === "news" && (
+              <button onClick={() => setPage("stocks")}>
+                <MagnifyingGlass size={17} />
+                个股资讯
+              </button>
+            )}
+            {page === "stocks" && (
+              <button onClick={() => setPage("news")}>返回热点资讯</button>
+            )}
             {page === "knowledge" && (
               <button onClick={() => setPage("settings")}>
                 <FolderOpen size={18} />
@@ -465,7 +479,9 @@ export function App() {
                         >
                           <div className="news-row-top">
                             <span>{String(i + 1).padStart(2, "0")}</span>
-                            <span className="news-row-source">{n.sources[0]?.name || "用户提供"}</span>
+                            <span className="news-row-source">
+                              {n.sources[0]?.name || "用户提供"}
+                            </span>
                             <small>{dayTime(n.published_at)}</small>
                           </div>
                           <h3>{n.title}</h3>
@@ -592,6 +608,7 @@ export function App() {
             )}
           </>
         )}
+        {page === "stocks" && <StockNews />}
         {page === "knowledge" && (
           <Knowledge onSettings={() => setPage("settings")} />
         )}
@@ -630,13 +647,28 @@ function Confirm({ title, detail, onConfirm, onCancel }: any) {
   );
 }
 function PendingReport({ session }: { session: string }) {
-  const sectors = ["半导体", "人工智能", "新能源", "医药生物", "消费电子", "机器人", "有色金属", "电力设备", "汽车", "消费"];
+  const sectors = [
+    "半导体",
+    "人工智能",
+    "新能源",
+    "医药生物",
+    "消费电子",
+    "机器人",
+    "有色金属",
+    "电力设备",
+    "汽车",
+    "消费",
+  ];
   const [active, setActive] = useState(sectors[0]);
   return (
     <>
       <div className="sector-strip" aria-label="行业板块">
         {sectors.map((name) => (
-          <button key={name} className={active === name ? "selected" : ""} onClick={() => setActive(name)}>
+          <button
+            key={name}
+            className={active === name ? "selected" : ""}
+            onClick={() => setActive(name)}
+          >
             <strong>{name}</strong>
           </button>
         ))}
@@ -651,13 +683,17 @@ function PendingReport({ session }: { session: string }) {
             <section className="news-list" aria-label="待更新资讯列表">
               {Array.from({ length: 10 }, (_, i) => (
                 <div className="news-row pending-row" key={i}>
-                  <div className="news-row-top"><span>{String(i + 1).padStart(2, "0")}</span></div>
+                  <div className="news-row-top">
+                    <span>{String(i + 1).padStart(2, "0")}</span>
+                  </div>
                   <h3>待更新</h3>
                 </div>
               ))}
             </section>
             <section className="news-detail" aria-label="待更新资讯详情">
-              <div className="detail-top"><span className="badge">{active}</span></div>
+              <div className="detail-top">
+                <span className="badge">{active}</span>
+              </div>
               <Empty title="待更新" />
             </section>
           </div>
@@ -667,8 +703,20 @@ function PendingReport({ session }: { session: string }) {
           {["板块行情", "个股涨幅榜", "个股跌幅榜"].map((name) => (
             <section key={name}>
               <h3>{name}</h3>
-              <table><thead><tr><th>名称</th><th>涨跌幅</th><th>资金流向</th><th>原因</th></tr></thead>
-                <tbody><tr><td colSpan={4}>待更新</td></tr></tbody>
+              <table>
+                <thead>
+                  <tr>
+                    <th>名称</th>
+                    <th>涨跌幅</th>
+                    <th>资金流向</th>
+                    <th>原因</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td colSpan={4}>待更新</td>
+                  </tr>
+                </tbody>
               </table>
             </section>
           ))}

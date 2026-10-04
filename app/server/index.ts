@@ -1,3 +1,4 @@
+import * as stockNews from "./stock-news.ts";
 import express from "express";
 import { openWorkBuddy } from "./workbuddy.ts";
 import { randomBytes } from "node:crypto";
@@ -61,6 +62,41 @@ app.get(
           String(req.query.market || "CN_A"),
         );
     return report?.demo ? null : report;
+  }),
+);
+app.get(
+  "/api/stock-news",
+  route(() => stockNews.stockRequests()),
+);
+app.post(
+  "/api/stock-news",
+  route(async (req) => {
+    const b = z
+      .object({
+        query: z.string().trim().min(1).max(100),
+        market: stockNews.StockMarket,
+      })
+      .parse(req.body);
+    const request = stockNews.createStockRequest(b.query, b.market);
+    try {
+      await openWorkBuddy(request.prompt);
+    } catch {
+      stockNews.failStockRequest(
+        request.request_id,
+        "无法打开 WorkBuddy，请检查本机安装",
+      );
+      throw new Error("无法打开 WorkBuddy，请检查本机安装");
+    }
+    return { request_id: request.request_id, status: "awaiting_send" };
+  }),
+);
+app.post(
+  "/api/stock-news/delete",
+  route((req) => {
+    const b = z
+      .object({ request_id: z.string(), news_id: z.string() })
+      .parse(req.body);
+    return stockNews.deleteStockNews(b.request_id, b.news_id);
   }),
 );
 app.post(
