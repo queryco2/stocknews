@@ -1291,22 +1291,23 @@ function Settings({
           </div>
         </div>
         <div className="inline-form">
-          <input
-            aria-label="知识库路径"
-            placeholder="/Users/你的用户名/Documents/知识库"
-            value={root}
-            onChange={(e) => setRoot(e.target.value)}
-          />
+          <span className="knowledge-path" title={root}>{root || "尚未选择文件夹"}</span>
           <button
-            disabled={busy || !root}
-            onClick={() =>
-              act(
-                () => api("/knowledge/root", { path: root }),
-                "知识库已连接并完成扫描",
-              )
-            }
+            disabled={busy}
+            onClick={async () => {
+              setBusy(true);
+              try {
+                const result = await api<{ cancelled: boolean }>("/knowledge/choose-folder", {});
+                if (!result.cancelled) {
+                  await load();
+                  notify("知识库已连接并完成扫描");
+                }
+              } catch (e) { onError((e as Error).message); }
+              finally { setBusy(false); }
+            }}
           >
-            连接文件夹
+            <FolderOpen size={18} />
+            {root ? "更换文件夹" : "选择文件夹"}
           </button>
         </div>
       </section>

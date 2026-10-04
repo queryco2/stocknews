@@ -25,3 +25,5 @@ News runs every calendar day, including weekends and holidays; label the tab 每
 Clarification of 待更新: preserve the sector tabs, news list slots and detail pane when data is absent; display 待更新 inside those areas. Default sector names are navigation categories only, without fabricated rankings, articles or sources. Replace with actual AI-ranked sectors once a real report arrives. Close reports retain table sections with pending cells.
 
 Stock-specific news is a subview of 资讯中心, accessed via 个股资讯. Accept stock name/code and market, retain query history with sources, and preserve the clean master-detail layout. No sample stock data. WorkBuddy task links prefill only; do not claim automatic execution.
+
+Knowledge directory selection uses the native macOS folder dialog, not a typed path field. Show the selected path read-only; selecting connects and scans, cancelling leaves the current connection unchanged.

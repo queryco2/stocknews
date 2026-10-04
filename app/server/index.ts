@@ -1,3 +1,4 @@
+import { chooseKnowledgeFolder } from "./folder-picker.ts";
 import * as stockNews from "./stock-news.ts";
 import express from "express";
 import { openWorkBuddy } from "./workbuddy.ts";
@@ -178,6 +179,12 @@ app.get(
   "/api/knowledge",
   route(() => knowledge.scan()),
 );
+app.post("/api/knowledge/choose-folder", route(async () => {
+  const folder = await chooseKnowledgeFolder();
+  if (folder === null) return { cancelled: true };
+  await knowledge.setRoot(folder);
+  return { cancelled: false, path: store.setting("knowledgeRoot", "") };
+}));
 app.post(
   "/api/knowledge/root",
   route((req) => knowledge.setRoot(z.string().min(1).parse(req.body.path))),
