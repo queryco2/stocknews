@@ -1,0 +1,1 @@
+{"name":"stocknews-workspace","private":true,"scripts":{"dev":"npm --prefix app run dev","build":"npm --prefix app run build","test":"npm --prefix app test","start":"npm --prefix app start","mcp":"npm --prefix app run mcp","seed":"npm --prefix app run seed","typecheck":"npm --prefix app run typecheck"},"engines":{"node":">=24.14"}}
