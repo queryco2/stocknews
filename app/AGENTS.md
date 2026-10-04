@@ -21,3 +21,5 @@ The news page heading explicitly identifies 今日热点资讯 for today's morni
 Do not display example/demo reports or provide a demo-loading button. Without real data, show only 待更新 in the content area. Hide demo versions from history. Demo knowledge files must not be the default connected directory.
 
 News runs every calendar day, including weekends and holidays; label the tab 每日资讯. Only close-market reports depend on actual trading days. 待更新 means no ingested report, never no news because of a holiday. Keep the morning protocol value for compatibility.
+
+Clarification of 待更新: preserve the sector tabs, news list slots and detail pane when data is absent; display 待更新 inside those areas. Default sector names are navigation categories only, without fabricated rankings, articles or sources. Replace with actual AI-ranked sectors once a real report arrives. Close reports retain table sections with pending cells.

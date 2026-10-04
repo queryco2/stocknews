@@ -395,7 +395,7 @@ export function App() {
             {loading ? (
               <Empty title="正在读取本地报告…" />
             ) : !report ? (
-              <Empty title="待更新" />
+              <PendingReport session={session} />
             ) : session === "morning" ? (
               <>
                 <div className="sector-strip">
@@ -629,6 +629,55 @@ function Confirm({ title, detail, onConfirm, onCancel }: any) {
     </>
   );
 }
+function PendingReport({ session }: { session: string }) {
+  const sectors = ["半导体", "人工智能", "新能源", "医药生物", "消费电子", "机器人", "有色金属", "电力设备", "汽车", "消费"];
+  const [active, setActive] = useState(sectors[0]);
+  return (
+    <>
+      <div className="sector-strip" aria-label="行业板块">
+        {sectors.map((name) => (
+          <button key={name} className={active === name ? "selected" : ""} onClick={() => setActive(name)}>
+            <strong>{name}</strong>
+          </button>
+        ))}
+      </div>
+      {session === "morning" ? (
+        <>
+          <div className="filter-row">
+            <strong>{active}</strong>
+            <span className="muted">待更新</span>
+          </div>
+          <div className="news-workspace pending-workspace">
+            <section className="news-list" aria-label="待更新资讯列表">
+              {Array.from({ length: 10 }, (_, i) => (
+                <div className="news-row pending-row" key={i}>
+                  <div className="news-row-top"><span>{String(i + 1).padStart(2, "0")}</span></div>
+                  <h3>待更新</h3>
+                </div>
+              ))}
+            </section>
+            <section className="news-detail" aria-label="待更新资讯详情">
+              <div className="detail-top"><span className="badge">{active}</span></div>
+              <Empty title="待更新" />
+            </section>
+          </div>
+        </>
+      ) : (
+        <div className="pending-market">
+          {["板块行情", "个股涨幅榜", "个股跌幅榜"].map((name) => (
+            <section key={name}>
+              <h3>{name}</h3>
+              <table><thead><tr><th>名称</th><th>涨跌幅</th><th>资金流向</th><th>原因</th></tr></thead>
+                <tbody><tr><td colSpan={4}>待更新</td></tr></tbody>
+              </table>
+            </section>
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
+
 function CloseView({
   report,
   watched,

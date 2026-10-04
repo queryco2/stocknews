@@ -1912,3 +1912,11 @@ main { margin-left: 216px; }
   .sidebar button svg { width: 23px; height: 23px; }
   main { margin-left: 70px; }
 }
+
+.pending-row { cursor: default; min-height: 65px; }
+.pending-row h3 { color: var(--muted); font-weight: 400; }
+.pending-workspace .news-detail .empty { min-height: 260px; }
+.pending-market { display: grid; gap: 24px; padding-top: 20px; }
+.pending-market h3 { font-size: 14px; margin-bottom: 12px; }
+.pending-market table { width: 100%; }
+.pending-market td { color: var(--muted); text-align: center; padding: 24px; }
