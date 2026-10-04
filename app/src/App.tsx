@@ -242,6 +242,9 @@ export function App() {
       tell("已打开 WorkBuddy，请发送预填任务；结果将自动追加");
     }
   };
+  const today = new Date().toLocaleDateString("en-CA");
+  const reportDayLabel = !date || date === today ? "今日" : `${date.slice(5, 7)}月${date.slice(8, 10)}日`;
+  const newsHeading = `${reportDayLabel}${session === "morning" ? "热点资讯" : "收盘复盘"}`;
   const versions =
     boot?.reports.filter(
       (r: any) =>
@@ -293,7 +296,7 @@ export function App() {
           <div>
             <h1>
               {page === "news"
-                ? "资讯中心"
+                ? newsHeading
                 : page === "knowledge"
                   ? "知识库"
                   : "设置与连接"}
