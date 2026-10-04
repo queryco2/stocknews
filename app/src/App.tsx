@@ -485,15 +485,11 @@ export function App() {
                         >
                           <div className="news-row-top">
                             <span>{String(i + 1).padStart(2, "0")}</span>
-
+                            <span className="news-row-source">{n.sources[0]?.name || "用户提供"}</span>
                             <small>{dayTime(n.published_at)}</small>
                           </div>
                           <h3>{n.title}</h3>
                           <p>{n.summary}</p>
-                          <div className="news-row-bottom">
-                            <span>{n.sources[0]?.name || "用户提供"}</span>
-                            <ArrowRight size={16} />
-                          </div>
                         </button>
                       ))
                     ) : (

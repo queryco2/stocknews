@@ -13,3 +13,5 @@ Keep the interface simple, clean, direct. Remove decorative English headings, su
 
 ## User feedback (2026-10-05)
 News cards in the left list should be compact: smaller vertical padding and gaps, one-line summary preview, readable full titles. News actions should only expose delete and 获取更多资讯; no manual entry, retain, replace, lock, or edit. More news is appended directly through WorkBuddy and MCP.
+
+Clarification: “新闻左边的卡片” means the news list beside the article detail, not the far-left navigation. Restore the navigation's original 216px desktop / 184px medium / 70px narrow proportions. Compact only `.news-row`; combine source and time in its metadata line.

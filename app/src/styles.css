@@ -1891,3 +1891,24 @@ main {
 .news-row-bottom {
   margin-top: 5px;
 }
+
+/* Restore the original navigation proportions; density applies to news only. */
+.sidebar { width: 216px; padding: 29px 15px 15px; }
+.brand { font-size: 19px; gap: 11px; padding: 0 11px 42px; }
+.sidebar nav { gap: 8px; }
+.sidebar button { padding: 13px 16px; }
+main { margin-left: 216px; }
+.news-row-source { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.news-row-top small { flex-shrink: 0; }
+@media (max-width: 1200px) and (min-width: 851px) {
+  .sidebar { width: 184px; }
+  .brand { font-size: 17px; padding-left: 5px; }
+  main { margin-left: 184px; }
+}
+@media (max-width: 850px) {
+  .sidebar { width: 70px; padding: 25px 8px; }
+  .brand { padding: 0 12px 35px; }
+  .sidebar button { padding: 15px; }
+  .sidebar button svg { width: 23px; height: 23px; }
+  main { margin-left: 70px; }
+}
