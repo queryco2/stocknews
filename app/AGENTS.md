@@ -19,3 +19,5 @@ Clarification: “新闻左边的卡片” means the news list beside the articl
 The news page heading explicitly identifies 今日热点资讯 for today's morning report, or the selected historical date's 热点资讯. Close reports use 收盘复盘. Keep the navigation label 资讯中心 and avoid an additional subtitle.
 
 Do not display example/demo reports or provide a demo-loading button. Without real data, show only 待更新 in the content area. Hide demo versions from history. Demo knowledge files must not be the default connected directory.
+
+News runs every calendar day, including weekends and holidays; label the tab 每日资讯. Only close-market reports depend on actual trading days. 待更新 means no ingested report, never no news because of a holiday. Keep the morning protocol value for compatibility.

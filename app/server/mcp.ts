@@ -36,9 +36,13 @@ function tool(
 }
 tool(
   "get_ingestion_schema",
-  "获取早盘10板块×10新闻和收盘行情的JSON Schema。先读取规范再提交。",
+  "获取每日资讯10板块×10新闻和收盘行情的JSON Schema。资讯含周末及节假日，先读取规范再提交。",
   {},
   () => ({
+    calendar_policy: {
+      morning: "每日资讯，按自然日归档，包括周末及节假日；检索截至采集时刻的近24小时。morning为兼容既有接口保留的名称，不表示仅交易日可用。",
+      close: "仅实际交易日的收盘行情；先核实市场交易日，不得将上一交易日数据标记为休市当天数据。",
+    },
     report: z.toJSONSchema(Report),
     news: z.toJSONSchema(News),
     sequence: [

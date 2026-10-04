@@ -347,7 +347,7 @@ export function App() {
                   className={session === "morning" ? "active" : ""}
                   onClick={() => changeSession("morning")}
                 >
-                  早盘资讯
+                  每日资讯
                 </button>
                 <button
                   className={session === "close" ? "active" : ""}
@@ -1170,10 +1170,10 @@ function Settings({
           复制配置
         </button>
         <details>
-          <summary>查看早盘任务提示词</summary>
+          <summary>查看每日资讯任务提示词</summary>
           <p>
             读取
-            get_ingestion_schema。检索近24小时，选出10个重点行业板块并按关注优先级排序，每板块最多10条新闻。每条附来源、原文链接、发布时间与事实概要，AI分析单列；不凑数、不编造。先
+            get_ingestion_schema。每天执行，包括周末和节假日，不因股市休市跳过。按自然日归档，检索近24小时，选出10个重点行业板块并按关注优先级排序，每板块最多10条新闻。每条附来源、原文链接、发布时间与事实概要，AI分析单列；不凑数、不编造。先
             get_report_context 读取已有与排除项，再
             begin_ingestion、submit_morning_report、finish_ingestion。完成后报告实际入库数量。
           </p>
@@ -1181,7 +1181,7 @@ function Settings({
         <details>
           <summary>查看收盘任务提示词</summary>
           <p>
-            获取目标交易日A股收盘行情，包含板块资金流向、涨跌幅，以及涨幅和跌幅各前10名、关注个股。注明来源、截至时间、资金口径和排名覆盖范围；分别说明上涨、下跌、涨停的已知原因，推测单列并附依据。无法核实写待核实，缺失数值用null。通过MCP提交收盘报告并完成发布。
+            先核实目标市场该日期是否交易；休市不生成当日收盘行情，不将上一交易日行情冒充今日数据。获取目标交易日A股收盘行情，包含板块资金流向、涨跌幅，以及涨幅和跌幅各前10名、关注个股。注明来源、截至时间、资金口径和排名覆盖范围；分别说明上涨、下跌、涨停的已知原因，推测单列并附依据。无法核实写待核实，缺失数值用null。通过MCP提交收盘报告并完成发布。
           </p>
         </details>
       </section>
