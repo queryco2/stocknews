@@ -1,7 +1,10 @@
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, cpSync, writeFileSync, rmSync, symlinkSync, readFileSync } from 'node:fs';
+import { mkdirSync, cpSync, writeFileSync, rmSync, symlinkSync, readFileSync, renameSync } from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
+import { signingConfig, signApp, notarizeApp, notarizeDmg } from './mac-signing.mjs';
+const official = process.argv.includes('--release');
+const signing = official ? signingConfig() : null;
 const root = process.cwd();
 const version = JSON.parse(readFileSync('app/package.json')).version;
 const release = path.join(root, 'release');
@@ -26,13 +29,23 @@ run('clang', ['desktop/main.m', '-O2', '-fobjc-arc', '-arch', 'arm64', '-mmacosx
 writeFileSync(path.join(contents, 'Info.plist'), `<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"><plist version="1.0"><dict>
 <key>CFBundleExecutable</key><string>Stocknews</string><key>CFBundleIdentifier</key><string>com.stocknews.desktop</string><key>CFBundleName</key><string>Stocknews</string><key>CFBundleDisplayName</key><string>Stocknews</string><key>CFBundlePackageType</key><string>APPL</string><key>CFBundleShortVersionString</key><string>${version}</string><key>CFBundleVersion</key><string>${version}</string><key>LSMinimumSystemVersion</key><string>13.0</string><key>NSHighResolutionCapable</key><true/><key>NSAppTransportSecurity</key><dict><key>NSAllowsLocalNetworking</key><true/></dict></dict></plist>`);
 writeFileSync(path.join(resources, 'BUILD_COMMIT'), execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }));
-run('codesign', ['--force', '--sign', '-', path.join(resources, 'runtime/node')]);
-run('codesign', ['--force', '--deep', '--sign', '-', bundle]);
+if (official) {
+  signApp(bundle, signing, release);
+  notarizeApp(bundle, signing, release);
+} else {
+  run('codesign', ['--force', '--sign', '-', path.join(resources, 'runtime/node')]);
+  run('codesign', ['--force', '--deep', '--sign', '-', bundle]);
+}
 run('codesign', ['--verify', '--deep', '--strict', bundle]);
 symlinkSync('/Applications', path.join(staging, 'Applications'));
-writeFileSync(path.join(staging, '安装说明.txt'), '将 Stocknews.app 拖到 Applications。适用于 Apple Silicon，macOS 13 或更新版本。\n数据保存于 ~/Library/Application Support/Stocknews，不包含开发机器数据或账号授权。\n本包为本地测试版本，未经过 Apple 公证。\n');
-const dmg = path.join(release, `Stocknews_${version}_arm64.dmg`);
-run('hdiutil', ['create', '-volname', 'Stocknews', '-srcfolder', staging, '-ov', '-format', 'UDZO', dmg]);
+writeFileSync(path.join(staging, '安装说明.txt'), '将 Stocknews.app 拖到 Applications。适用于 Apple Silicon，macOS 13 或更新版本。\n数据保存于 ~/Library/Application Support/Stocknews，不包含开发机器数据或账号授权。\n' + (official ? '本包已完成 Developer ID 签名和 Apple 公证。\n' : '本包为本地测试版本，未经过 Apple 公证。\n'));
+const dmg = path.join(release, `Stocknews_${version}_arm64${official ? "_notarized" : ""}.dmg`);
+const candidate = official ? path.join(release, 'Stocknews-pending.dmg') : dmg;
+run('hdiutil', ['create', '-volname', 'Stocknews', '-srcfolder', staging, '-ov', '-format', 'UDZO', candidate]);
+if (official) {
+  notarizeDmg(candidate, signing, release);
+  renameSync(candidate, dmg);
+}
 const digest = createHash('sha256').update(readFileSync(dmg)).digest('hex');
 writeFileSync(dmg + '.sha256', digest + '  ' + path.basename(dmg) + '\n');
 console.log('SHA256 ' + digest);

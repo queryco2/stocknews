@@ -9,7 +9,8 @@
     "mcp": "npm --prefix app run mcp",
     "seed": "npm --prefix app run seed",
     "typecheck": "npm --prefix app run typecheck",
-    "package:mac": "node scripts/package-mac.mjs"
+    "package:mac": "node scripts/package-mac.mjs",
+    "package:mac:release": "node scripts/package-mac.mjs --release"
   },
   "engines": {
     "node": ">=24.14"
