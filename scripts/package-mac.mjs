@@ -1,6 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, cpSync, writeFileSync, rmSync, symlinkSync, readFileSync } from 'node:fs';
 import path from 'node:path';
+import { createHash } from 'node:crypto';
 const root = process.cwd();
 const version = JSON.parse(readFileSync('app/package.json')).version;
 const release = path.join(root, 'release');
@@ -32,5 +33,7 @@ symlinkSync('/Applications', path.join(staging, 'Applications'));
 writeFileSync(path.join(staging, '安装说明.txt'), '将 Stocknews.app 拖到 Applications。适用于 Apple Silicon，macOS 13 或更新版本。\n数据保存于 ~/Library/Application Support/Stocknews，不包含开发机器数据或账号授权。\n本包为本地测试版本，未经过 Apple 公证。\n');
 const dmg = path.join(release, `Stocknews_${version}_arm64.dmg`);
 run('hdiutil', ['create', '-volname', 'Stocknews', '-srcfolder', staging, '-ov', '-format', 'UDZO', dmg]);
-run('shasum', ['-a', '256', dmg]);
+const digest = createHash('sha256').update(readFileSync(dmg)).digest('hex');
+writeFileSync(dmg + '.sha256', digest + '  ' + path.basename(dmg) + '\n');
+console.log('SHA256 ' + digest);
 console.log(dmg);
