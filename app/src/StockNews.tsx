@@ -1,3 +1,4 @@
+import { StockPicker, type StockChoice } from "./StockPicker";
 import { useEffect, useState } from "react";
 import { ArrowSquareOut, Trash, MagnifyingGlass } from "@phosphor-icons/react";
 import { api } from "./api";
@@ -21,7 +22,7 @@ const time = (v: string) =>
     minute: "2-digit",
   });
 export function StockNews() {
-  const [query, setQuery] = useState("");
+  const [choice, setChoice] = useState<StockChoice | null>(null);
   const [market, setMarket] = useState("CN_A");
   const [rows, setRows] = useState<Request[]>([]);
   const [selected, setSelected] = useState("");
@@ -50,13 +51,14 @@ export function StockNews() {
   const item = current?.items.find((n) => n.id === itemId) || current?.items[0];
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!query.trim() || busy) return;
+    if (!choice || busy) return;
     setBusy(true);
     setError("");
     setNotice("");
     try {
       const r = await api<{ request_id: string }>("/stock-news", {
-        query: query.trim(),
+        query: choice.symbol,
+        catalog_key: choice.key,
         market,
       });
       setSelected(r.request_id);
@@ -92,26 +94,17 @@ export function StockNews() {
   return (
     <div>
       <form className="filter-row stock-search" onSubmit={submit}>
-        <label className="search">
-          <MagnifyingGlass size={18} />
-          <input
-            aria-label="股票名称或代码"
-            placeholder="输入股票名称或代码"
-            maxLength={100}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-        </label>
+        <StockPicker key={market} market={market} onSelect={setChoice} />
         <select
           aria-label="个股市场"
           value={market}
-          onChange={(e) => setMarket(e.target.value)}
+          onChange={(e) => { setMarket(e.target.value); setChoice(null); }}
         >
           <option value="CN_A">A 股</option>
           <option value="HK">港股</option>
           <option value="US">美股</option>
         </select>
-        <button className="primary" disabled={busy || !query.trim()}>
+        <button className="primary" disabled={busy || !choice}>
           {busy ? "正在打开…" : "获取个股资讯"}
         </button>
       </form>

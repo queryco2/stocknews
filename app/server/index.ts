@@ -1,3 +1,4 @@
+import * as catalog from "./stock-catalog.ts";
 import { chooseKnowledgeFolder } from "./folder-picker.ts";
 import * as stockNews from "./stock-news.ts";
 import express from "express";
@@ -65,6 +66,12 @@ app.get(
     return report?.demo ? null : report;
   }),
 );
+app.get("/api/stocks/search", route(req => {
+  const market = stockNews.StockMarket.parse(req.query.market || "CN_A");
+  const query = z.string().max(100).parse(req.query.q || "");
+  return { items: catalog.searchStocks(query, market), status: catalog.catalogStatus().find(s=>s.market===market) };
+}));
+app.post("/api/stocks/refresh", route(req => catalog.refreshCatalog(stockNews.StockMarket.parse(req.body.market))));
 app.get(
   "/api/stock-news",
   route(() => stockNews.stockRequests()),
@@ -76,9 +83,10 @@ app.post(
       .object({
         query: z.string().trim().min(1).max(100),
         market: stockNews.StockMarket,
+        catalog_key: z.string().min(1).max(100),
       })
       .parse(req.body);
-    const request = stockNews.createStockRequest(b.query, b.market);
+    const request = stockNews.createStockRequest(b.query, b.market, b.catalog_key);
     try {
       await openWorkBuddy(request.prompt);
     } catch {
@@ -227,10 +235,7 @@ app.get(
     knowledgeRoot: store.setting("knowledgeRoot", ""),
     mcp: {
       command: process.execPath,
-      args: [
-        path.join(store.projectRoot, "app/node_modules/tsx/dist/cli.mjs"),
-        path.join(store.projectRoot, "app/server/mcp.ts"),
-      ],
+      args: [path.join(store.projectRoot, "app/server/mcp.ts")],
       env: { STOCKNEWS_DATA_DIR: store.dataDir },
     },
   })),
@@ -311,8 +316,13 @@ app.use((error: any, _req: any, res: any, _next: any) =>
 store.db
   .prepare("UPDATE sync_jobs SET status='pending' WHERE status='running'")
   .run();
-const timer = setInterval(() => void runSync(), 15000);
+const timer = setInterval(() => { if (!process.env.STOCKNEWS_DESKTOP) void runSync(); }, 15000);
 timer.unref();
-app.listen(Number(process.env.PORT || 4318), "127.0.0.1", () =>
-  console.log("Stocknews API http://127.0.0.1:" + (process.env.PORT || 4318)),
-);
+const server = app.listen(Number(process.env.PORT || 4318), "127.0.0.1", () => {
+  const address = server.address();
+  if (address && typeof address !== "string") console.log("Stocknews API http://127.0.0.1:" + address.port);
+});
+
+// Refresh reference data daily; failed downloads retain the last usable catalog.
+void catalog.refreshStaleCatalogs();
+setInterval(() => { void catalog.refreshStaleCatalogs(); }, 3600000).unref();
