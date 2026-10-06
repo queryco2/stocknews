@@ -21,7 +21,7 @@ for (const file of ['package.json', 'package-lock.json']) cpSync(path.join(root,
 run('npm', ['ci', '--omit=dev', '--ignore-scripts', '--no-audit', '--no-fund'], app);
 run('lipo', [process.execPath, '-thin', 'arm64', '-output', path.join(resources, 'runtime/node')]);
 run('chmod', ['755', path.join(resources, 'runtime/node')]);
-run('swiftc', ['desktop/main.swift', '-O', '-target', 'arm64-apple-macosx13.0', '-framework', 'Cocoa', '-framework', 'WebKit', '-o', path.join(contents, 'MacOS/Stocknews')]);
+run('clang', ['desktop/main.m', '-O2', '-fobjc-arc', '-arch', 'arm64', '-mmacosx-version-min=13.0', '-framework', 'Cocoa', '-framework', 'WebKit', '-o', path.join(contents, 'MacOS/Stocknews')]);
 writeFileSync(path.join(contents, 'Info.plist'), `<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"><plist version="1.0"><dict>
 <key>CFBundleExecutable</key><string>Stocknews</string><key>CFBundleIdentifier</key><string>com.stocknews.desktop</string><key>CFBundleName</key><string>Stocknews</string><key>CFBundleDisplayName</key><string>Stocknews</string><key>CFBundlePackageType</key><string>APPL</string><key>CFBundleShortVersionString</key><string>${version}</string><key>CFBundleVersion</key><string>${version}</string><key>LSMinimumSystemVersion</key><string>13.0</string><key>NSHighResolutionCapable</key><true/><key>NSAppTransportSecurity</key><dict><key>NSAllowsLocalNetworking</key><true/></dict></dict></plist>`);
 writeFileSync(path.join(resources, 'BUILD_COMMIT'), execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }));

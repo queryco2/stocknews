@@ -2,7 +2,7 @@
 
 运行 `npm run package:mac`，产物为 `release/Stocknews_0.1.0_arm64.dmg`。版本号取自 app/package.json。构建要求 Apple Silicon、Node 24.14+、Xcode Command Line Tools；运行要求 macOS 13+，无需另装 Node。
 
-参考 zerone.Desktop 的运行环境内置、AppData 独立存储、冻结 Git 快照、hdiutil staging + Applications 快捷方式、挂载验证流程。本项目使用 Swift / WKWebView 原生外壳，未引入 Zerone 的 Tauri 业务代码、授权或签名密钥。
+参考 zerone.Desktop 的运行环境内置、AppData 独立存储、冻结 Git 快照、hdiutil staging + Applications 快捷方式、挂载验证流程。本项目使用 Objective-C / WKWebView 原生外壳，未引入 Zerone 的 Tauri 业务代码、授权或签名密钥。
 
 应用内置 Node、Express API、React 静态文件与 MCP 源码，API 绑定随机本地端口，退出应用结束子进程。SQLite 与日志放在 `~/Library/Application Support/Stocknews`。安装包不包含开发数据库、知识库文件、机器人配置或本机 CLI 授权。开发数据不自动迁移。
 
